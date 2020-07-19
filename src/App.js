@@ -1,24 +1,27 @@
 import React from 'react';
-import logo from './logo.svg';
+import StepperView from './Views/Stepper'
+import { ThemeProvider } from '@material-ui/styles';
+import { create } from 'jss';
+import rtl from 'jss-rtl';
+import { StylesProvider, jssPreset } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
+
+import theme from './theme'
 import './App.css';
+
+const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App" >
+      <StylesProvider jss={jss}>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={3}>
+            <StepperView />
+          </SnackbarProvider>
+        </ThemeProvider>
+      </StylesProvider>
     </div>
   );
 }
