@@ -56,7 +56,6 @@ function getStepContent(stepIndex, handleBoxes) {
 export default function HorizontalLabelPositionBelowStepper() {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [user, setUser] = React.useState({});
   const { enqueueSnackbar } = useSnackbar();
   const handleBoxes = () => {
     setActiveStep(1);
@@ -101,27 +100,19 @@ export default function HorizontalLabelPositionBelowStepper() {
         brand: document.getElementById('selectedImage').innerHTML,
       }
       firebase.auth().createUserWithEmailAndPassword(userData.email, userData.email)
-      .then(() => firebase.auth().currentUser.sendEmailVerification())
-      .then(() => firebase.firestore().collection('Users').doc(user.uid).set(userData) )
-      .then(() => {enqueueSnackbar("User Data Sucessfully Submitted!", { variant: "success" }); setActiveStep((prevActiveStep) => prevActiveStep + 1)})
-      .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
-      .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+      .then(res => {
+        firebase.auth().currentUser.sendEmailVerification()
+        .then(() => {
+          console.log(res.user.uid)
+          firebase.firestore().collection('Users').doc(res.user.uid).set(userData)
+          .then(() => {enqueueSnackbar("User Data Sucessfully Submitted!", { variant: "success" }); setActiveStep((prevActiveStep) => prevActiveStep + 1)})
+          .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+        })
+        .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+      })
       .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
     }
   };
-
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged(user => {
-      if(user) {
-        console.log(user);
-        setUser(user);
-      }
-      else{
-        setUser(false);
-        console.log(false);
-      }
-    })
-  });
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -144,7 +135,6 @@ export default function HorizontalLabelPositionBelowStepper() {
   })(StepConnector);
   return (
     <div className={classes.rootWrapper} >
-    {user ?
     <Paper className={classes.root}>
       <Stepper activeStep={activeStep}  alternativeLabel connector={<ColorlibConnector />} style={{color: "#27AE60", paddingBottom: 0}} >
           <Step key="בחר ספק">
@@ -184,8 +174,6 @@ export default function HorizontalLabelPositionBelowStepper() {
         </div>
       </div>
     </Paper>
-    : null
-    }
     <span style={{color: '#8c9ea3'}} id='selectedImage'  ></span>
     <span style={{color: '#8c9ea3'}} id="data1"> </span>
     <span style={{color: '#8c9ea3'}} id="data2"> </span>
