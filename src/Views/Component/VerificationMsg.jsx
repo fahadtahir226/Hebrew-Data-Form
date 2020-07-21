@@ -1,9 +1,6 @@
-import React from 'react';
-import validate from 'validate.js';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import {
-  Typography
-} from '@material-ui/core';
+import { Typography, FormControlLabel,  Checkbox } from '@material-ui/core';
 
 
 
@@ -25,54 +22,48 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginTop: theme.spacing(3)
   },
-  textField: {
-    marginTop: theme.spacing(2),
-  },
-
-  policy: {
-    marginTop: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center'
-  },
-  policyCheckbox: {
-    marginLeft: '-14px'
-  },
-
 }));
 
 const VerificationMsg = props => {
-  const { history } = props;
-
   const classes = useStyles();
+  useEffect(() => {
+    document.getElementById('fullnameDisplay').innerHTML =  `Full name ${document.getElementById('data1').innerHTML}`;
+    document.getElementById('phoneNumDisplay').innerHTML =  `Phone: ${document.getElementById('data2').innerHTML}`;
+    document.getElementById('emailDisplay').innerHTML =  `Email ${document.getElementById('data3').innerHTML}`;
+    document.getElementById('idDisplay').innerHTML =  `ID ${document.getElementById('data4').innerHTML}`;
+    document.getElementById('cc4Display').innerHTML =  `CC4 ${document.getElementById('data5').innerHTML}`;
 
-  // const handleSubmit = event => {
-  //   let inputs = document.getElementsByClassName('textField');
-  //   console.log(inputs);
-  //   event.preventDefault();
-  // };
+  });
 
   return (
     <div className={classes.root}>
-      <Typography className={classes.title} variant="h5" >
-        אישור סופי לשליחת הבקשה
-      </Typography>
+      <div className={classes.content} >
+        <Typography className={classes.title} variant="h5" >
+          אישור סופי לשליחת הבקשה
+        </Typography>
 
-      <Typography color="textSecondary" gutterBottom >
-        אנו נשלח את הבקשה בשמך לספק והוא מחוייב לפי חוק לנתק אותך לאלתר
-      </Typography>
-      
-      <Typography color="textSecondary" gutterBottom >
-        אלה הם הפרטים שנשלח לספק:
-      </Typography>
+        <Typography color="textSecondary" gutterBottom >
+          אנו נשלח את הבקשה בשמך לספק והוא מחוייב לפי חוק לנתק אותך לאלתר
+        </Typography>
+
+        <Typography color="textSecondary" gutterBottom id="fullnameDisplay"> </Typography>
+        <Typography color="textSecondary" gutterBottom id="phoneNumDisplay"> </Typography>
+        <Typography color="textSecondary" gutterBottom id="emailDisplay"> </Typography>
+        <Typography color="textSecondary" gutterBottom id="idDisplay"> </Typography>
+        <Typography color="textSecondary" gutterBottom id="cc4Display"> </Typography>
 
 
-      <Typography color="textSecondary" variant="body1" >
-        אני מבקש להתנתק היום מכל השירותים של ספק השירות
-      </Typography>
-
-      <Typography color="textSecondary" variant="body1" >
-        הריני מאשר בזאת כי קראתי את תנאי השימוש והתקנון ואני מסכים
-      </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="checkedB"
+              color="primary"
+              checked={true}
+            />
+          }
+          label="אשמח לשמוע הצעה בחינם ממומחה של חברה אחרת"
+        />
+      </div>
     </div>
   );
 };

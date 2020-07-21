@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
 import {
-  Grid,
   TextField,
-  FormHelperText,
   Checkbox,
   Typography
 } from '@material-ui/core';
@@ -88,7 +86,7 @@ const Forms = props => {
         <TextField className={classes.textField} fullWidth type="text" variant="outlined" label="ארבע ספרות של אמצעי התשלום" id="meanOfPayment" />
 
         <div className={classes.policy}>
-          <Checkbox className={classes.policyCheckbox} color="primary" id="policy1" />
+          <Checkbox className={classes.policyCheckbox} checked={true} color="primary" id="policy1" />
           <Typography className={classes.policyText} color="textSecondary" variant="body1" >
           אני מבקש להתנתק היום מכל השירותים של ספק השירות
           </Typography>

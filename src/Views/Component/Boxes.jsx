@@ -11,22 +11,22 @@ const images = [
   {
     url: cellcom,
     title: 'Breakfast',
-    width: '25%',
+    width: '24%',
   },
   {
     url: hot,
     title: 'hot',
-    width: '25%',
+    width: '24%',
   },
   {
     url: partner,
     title: 'partner',
-    width: '25%',
+    width: '24%',
   },
   {
     url: yes,
     title: 'yes',
-    width: '25%',
+    width: '24%',
   },
 ];
 
@@ -40,8 +40,25 @@ const useStyles = makeStyles((theme) => ({
   image: {
     position: 'relative',
     height: 200,
+    backgroundSize: 'contain',
+    border: '2px solid dimgrey',
+    [theme.breakpoints.down('md')]: {
+      display: 'inline-block',
+      width: '46% !important', // Overrides inline-style
+      height: 200,
+    },
+    '&:hover, &$focusVisible': {
+      zIndex: 1,
+      '& $imageBackdrop': {
+        opacity: 0.15,
+      },
+      '& $imageMarked': {
+        opacity: 0,
+      },
+      
+    },
     [theme.breakpoints.down('xs')]: {
-      width: '100% !important', // Overrides inline-style
+      width: '46% !important', // Overrides inline-style
       height: 100,
     },
     '&:hover, &$focusVisible': {
@@ -91,7 +108,7 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     bottom: 0,
     backgroundColor: theme.palette.common.black,
-    opacity: 0.2,
+    opacity: 0.5,
     transition: theme.transitions.create('opacity'),
   },
   imageMarked: {
@@ -107,10 +124,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Boxes(props) {
   const classes = useStyles();
-  const { handleNext } = props;
+  const { handleBoxes } = props;
   let handleChange = title => {
     document.getElementById('selectedImage').innerHTML = title;
-    handleNext();
+    handleBoxes();
   }
   return (
     <div className={classes.root}>
@@ -120,12 +137,12 @@ export default function Boxes(props) {
           key={image.title}
           className={classes.image}
           focusVisibleClassName={classes.focusVisible}
-          style={{ width: image.width, }}
+          style={{ width: image.width, margin: 5 }}
           onClick={() => handleChange(image.title)}
         >
           <span className={classes.imageSrc} style={{ backgroundImage: `url(${image.url})` }} />
           <span className={classes.imageBackdrop} />
-          <span className={classes.imageButton}></span>
+          {/* <span className={classes.imageButton}></span> */}
         </ButtonBase>
       ))}
     </div>

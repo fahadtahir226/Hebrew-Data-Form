@@ -1,14 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { Stepper, Step, StepLabel, Button, Typography, Paper, StepConnector } from '@material-ui/core';
+import { Stepper, Step, StepLabel, Button, Paper, StepConnector } from '@material-ui/core';
 import {  useSnackbar } from 'notistack';
-import { auth } from '../Firebase/auth'
-import { db } from '../Firebase/firestore'
+import firebase from '../Firebase/firebase'
 
 import Boxes from './Component/Boxes';
 import Form from './Component/Form';
 import VerificationMsg from './Component/VerificationMsg';
-import { SignUpCall } from '../Firebase/auth';
 
 const useStyles = makeStyles((theme) => ({
   rootWrapper: {
@@ -42,24 +40,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function getStepContent(stepIndex, handleNext) {
+function getStepContent(stepIndex, handleBoxes) {
   switch (stepIndex) {
     case 0:
-      return <Boxes handleNext={handleNext} />;
+      return <Boxes handleBoxes={handleBoxes} />;
     case 1:
       return <Form />;
     case 2:
       return <VerificationMsg />;
     default:
-      return '';
+      return 'Thank You';
   }
 }
 
 export default function HorizontalLabelPositionBelowStepper() {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
+  const [user, setUser] = React.useState({});
   const { enqueueSnackbar } = useSnackbar();
-
+  const handleBoxes = () => {
+    setActiveStep(1);
+  }
   const handleNext = () => {
     if(activeStep === 1 ){
       let name = document.getElementById('fullName').value,
@@ -68,8 +69,6 @@ export default function HorizontalLabelPositionBelowStepper() {
       subscribe = document.getElementById('subscriberID').value,
       payment  = document.getElementById('meanOfPayment').value,
       brand = document.getElementById('selectedImage').innerHTML,
-      userData = {name, phoneNum, email, subscribe, payment, brand}
-      let 
       checkBox1 = document.getElementById('policy1').checked,
       checkBox2 = document.getElementById('policy2').checked;
       console.log(brand);
@@ -84,30 +83,45 @@ export default function HorizontalLabelPositionBelowStepper() {
         return
       }
       else{
-        let authenticate = SignUpCall();
-        authenticate
-        .then((user) => {
-          console.log(user);
-          enqueueSnackbar("Sucessfully done", { variant: "success" })
-          auth.currentUser.sendEmailVerification().then(function() {
-            console.log("Email Sent!");
-            db.collection('Users').doc(auth.currentUser.uid).set(userData)
-            .then(() => console.log("User Data Added to firebase!"))
-            .catch(err => console.log("Error while saving to database", err.message));
-          })
-          .catch(function(error) {
-            // An error happened.
-            console.log("Error in sending email", error.message);
-          });
-        })
-        .catch(err => {
-          enqueueSnackbar(err.message, { variant: "error" })
-          return;
-        })
+        document.getElementById('data1').innerHTML = name;
+        document.getElementById('data2').innerHTML = phoneNum;
+        document.getElementById('data3').innerHTML = email;
+        document.getElementById('data4').innerHTML = subscribe
+        document.getElementById('data5').innerHTML = payment;
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
       }
     }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    else if(activeStep === 2){
+      let userData = { 
+        name : document.getElementById('data1').innerHTML,
+        phoneNum : document.getElementById('data2').innerHTML,
+        email : document.getElementById('data3').innerHTML,
+        subscribe : document.getElementById('data4').innerHTML,
+        payment : document.getElementById('data5').innerHTML,
+        brand: document.getElementById('selectedImage').innerHTML,
+      }
+      firebase.auth().createUserWithEmailAndPassword(userData.email, userData.email)
+      .then(() => firebase.auth().currentUser.sendEmailVerification())
+      .then(() => firebase.firestore().collection('Users').doc(user.uid).set(userData) )
+      .then(() => {enqueueSnackbar("User Data Sucessfully Submitted!", { variant: "success" }); setActiveStep((prevActiveStep) => prevActiveStep + 1)})
+      .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+      .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+      .catch(err => enqueueSnackbar(err.message, { variant: "error" }))
+    }
   };
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(user => {
+      if(user) {
+        console.log(user);
+        setUser(user);
+      }
+      else{
+        setUser(false);
+        console.log(false);
+      }
+    })
+  });
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -130,7 +144,7 @@ export default function HorizontalLabelPositionBelowStepper() {
   })(StepConnector);
   return (
     <div className={classes.rootWrapper} >
-        
+    {user ?
     <Paper className={classes.root}>
       <Stepper activeStep={activeStep}  alternativeLabel connector={<ColorlibConnector />} style={{color: "#27AE60", paddingBottom: 0}} >
           <Step key="בחר ספק">
@@ -145,9 +159,9 @@ export default function HorizontalLabelPositionBelowStepper() {
       </Stepper>
       <div>
         <div>
-          <div className={classes.instructions}>{getStepContent(activeStep, () => handleNext)}</div>
+          <div className={classes.instructions}>{getStepContent(activeStep, handleBoxes)}</div>
           {
-            (activeStep > 0 && activeStep < 4) ? 
+            (activeStep == 1 || activeStep == 2 ) ? 
             <div>
             <Button 
               variant="contained"
@@ -158,7 +172,7 @@ export default function HorizontalLabelPositionBelowStepper() {
               המשך לאישור
             </Button>
             <Button
-              disabled={activeStep === 0 || activeStep >= 2} 
+              disabled={activeStep === 0 || activeStep > 2} 
               onClick={handleBack}
               className={classes.backButton}
               >
@@ -170,7 +184,15 @@ export default function HorizontalLabelPositionBelowStepper() {
         </div>
       </div>
     </Paper>
-    <span id='selectedImage' style={{color: '#8c9ea3'}}  ></span>
+    : null
+    }
+    <span style={{color: '#8c9ea3'}} id='selectedImage'  ></span>
+    <span style={{color: '#8c9ea3'}} id="data1"> </span>
+    <span style={{color: '#8c9ea3'}} id="data2"> </span>
+    <span style={{color: '#8c9ea3'}} id="data3"> </span>
+    <span style={{color: '#8c9ea3'}} id="data4"> </span>
+    <span style={{color: '#8c9ea3'}} id="data5"> </span>
+
     </div>
   );
 }
